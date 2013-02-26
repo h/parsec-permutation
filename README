@@ -1,0 +1,16 @@
+Text.Parsec.Permutation is a permutation parser for parsec intended as
+a generalized replacement for Text.Parsec.Perm in parsec.
+
+Example usage:
+
+  > import Text.Parsec.Permutation
+  >
+  > fooParser :: ParsecT s u m a -> ParsecT s u m [a]
+  > fooParser = runPermParser $
+  >                 (,,) <$> oncePerm (char 'A')
+  >                      <*> manyPerm (char 'B')
+  >                      <*> optionMaybePerm (char 'C' >> char 'D')
+
+This parser will return ('A', "BBB", Just 'D') when parsing for example
+the strings "BCDABB", "CDBBAB", &etc.
+
