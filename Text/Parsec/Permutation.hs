@@ -27,10 +27,11 @@
 ----------------------------------------------------------------------------
 
 module Text.Parsec.Permutation
-  (PermParser, runPermParser, oncePerm, manyPerm, many1Perm,
+  (PermParser, runPermParser, runPermParserTill, oncePerm, manyPerm, many1Perm,
    optionPerm, optionMaybePerm)
 where
 
+import Control.Monad (void)
 import Control.Applicative ((<*>), (<$>), Applicative, pure)
 import Text.Parsec ((<|>), ParsecT, Stream, parserZero, optionMaybe, unexpected)
 
@@ -60,8 +61,26 @@ runPermParser :: Stream s m t => PermParser s u m a -> ParsecT s u m a
 runPermParser (PermParser value parser) =
     do result <- optionMaybe parser
        case result of
-         Nothing -> maybe (fail "Could not parse all permutations") return value
+         Nothing -> fromJustOrFail value
          Just permParser -> runPermParser permParser
+
+-- | Similar to runPermParser, but attempts parsing permutations only until the
+--   given @untilParser@ succeeds (similar to @manyTill@ in Text.Parsec).
+runPermParserTill :: Stream s m t
+                  => ParsecT s u m end -> PermParser s u m a -> ParsecT s u m a
+runPermParserTill untilParser (PermParser value parser) =
+    do void $ untilParser
+       fromJustOrFail value
+    <|>
+    do result <- optionMaybe parser
+       case result of
+         Nothing -> unexpected "end of permutation parser"
+         Just permParser -> runPermParserTill untilParser permParser
+
+-- Similar to "Data.Maybe.fromJust" but fails with an appropriate error message
+fromJustOrFail :: Maybe a -> ParsecT s u m a
+fromJustOrFail value =
+  maybe (fail "Could not parse all permutations") return value
 
 -- | Attempt parsing a value once. Fails if parsing the value succeeds multiple
 --   times.

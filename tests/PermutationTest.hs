@@ -26,6 +26,27 @@ prop_purePerm2 = once $
        Left _ -> False
        Right x -> x == ("qwer", "asdf")
 
+prop_oncePermTill :: Property
+prop_oncePermTill = once $
+  (requireParse "sdfxa" $ (runPermParserTill (char 'x') $
+    (,,,,,) <$> pure 'n'
+            <*> oncePerm (char 's')
+            <*> oncePerm (char 'f')
+            <*> oncePerm (char 'd')
+            <*> optionMaybePerm (char 'a')
+            <*> optionMaybePerm (char 'x')) <* char 'a')
+      == ('n','s','f','d',Nothing,Nothing)
+
+prop_oncePermTill2 :: Property
+prop_oncePermTill2 = once $
+  (requireParse "sdfax" $ runPermParserTill (char 'x') $
+    (,,,,,) <$> pure 'n'
+            <*> oncePerm (char 's')
+            <*> oncePerm (char 'f')
+            <*> oncePerm (char 'd')
+            <*> optionMaybePerm (char 'a')
+            <*> optionMaybePerm (char 'x')) == ('n','s','f','d',Just 'a',Nothing)
+
 prop_oncePerm :: Property
 prop_oncePerm = once $
   case parse (runPermParser $ oncePerm $ char 'A') "" "A" of
