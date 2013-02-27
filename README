@@ -12,5 +12,5 @@ Example usage:
   >                      <*> optionMaybePerm (char 'C' >> char 'D')
 
 This parser will return ('A', "BBB", Just 'D') when parsing for example
-the strings "BCDABB", "CDBBAB", &etc.
+the strings "BCDABB", "CDBBAB", etc.
 
