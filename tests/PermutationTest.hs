@@ -34,18 +34,19 @@ prop_oncePermTill = once $
             <*> oncePerm (char 'f')
             <*> oncePerm (char 'd')
             <*> optionMaybePerm (char 'a')
-            <*> optionMaybePerm (char 'x')) <* char 'a')
+            <*> optionMaybePerm (char 'x')) <* string "xa")
       == ('n','s','f','d',Nothing,Nothing)
 
 prop_oncePermTill2 :: Property
 prop_oncePermTill2 = once $
-  (requireParse "sdfax" $ runPermParserTill (char 'x') $
+  (requireParse "sdfax" $ (runPermParserTill (char 'x') $
     (,,,,,) <$> pure 'n'
             <*> oncePerm (char 's')
             <*> oncePerm (char 'f')
             <*> oncePerm (char 'd')
             <*> optionMaybePerm (char 'a')
-            <*> optionMaybePerm (char 'x')) == ('n','s','f','d',Just 'a',Nothing)
+            <*> optionMaybePerm (char 'x')) <* char 'x')
+  == ('n','s','f','d',Just 'a',Nothing)
 
 prop_oncePerm :: Property
 prop_oncePerm = once $

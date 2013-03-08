@@ -32,8 +32,10 @@ module Text.Parsec.Permutation
 where
 
 import Control.Monad (void)
-import Control.Applicative ((<*>), (<$>), Applicative, pure)
-import Text.Parsec ((<|>), ParsecT, Stream, parserZero, optionMaybe, unexpected)
+import Control.Applicative
+    ((<*>), (<$>), Applicative, pure)
+import Text.Parsec
+    ((<|>), ParsecT, Stream, parserZero, optionMaybe, unexpected, lookAhead)
 
 data PermParser s u m a =
   PermParser {
@@ -66,10 +68,13 @@ runPermParser (PermParser value parser) =
 
 -- | Similar to runPermParser, but attempts parsing permutations only until the
 --   given @untilParser@ succeeds (similar to @manyTill@ in Text.Parsec).
+--
+--   The text parsed by the untilParser is not consumed, however, so that its
+--   contents can be parsed later if necessary.
 runPermParserTill :: Stream s m t
                   => ParsecT s u m end -> PermParser s u m a -> ParsecT s u m a
 runPermParserTill untilParser (PermParser value parser) =
-    do void $ untilParser
+    do void $ lookAhead untilParser
        fromJustOrFail value
     <|>
     do result <- optionMaybe parser

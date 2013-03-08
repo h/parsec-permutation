@@ -1,5 +1,5 @@
 name:                parsec-permutation
-version:             0.1.1.0
+version:             0.1.2.0
 synopsis:            Applicative permutation parser for Parsec intended as
                      a replacement for Text.Parsec.Perm.
 license:             BSD3
